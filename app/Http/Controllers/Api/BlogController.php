@@ -176,4 +176,23 @@ class BlogController extends Controller
         $baseUrl = config('app.url');
         return "{$baseUrl}/images/blog/{$imageName}";
     }
+
+    /**
+     * Display a listing of the resource based on category.
+     *
+     * @param  int  $categoryId
+     * @return \Illuminate\Http\Response
+     */
+    public function indexByCategory($categoryId)
+    {
+        // Mengambil semua blog berdasarkan kategori
+        $blogs = Blog::where('blog_category_id', $categoryId)->get();
+
+        // Add link_image to each blog entry
+        foreach ($blogs as $blog) {
+            $blog->link_image = $this->getImageUrl($blog->blog_image);
+        }
+
+        return response()->json(['blogs' => $blogs]);
+    }
 }

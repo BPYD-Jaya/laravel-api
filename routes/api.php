@@ -26,6 +26,7 @@ Route::get('/blogcategories', [BlogCategoryController::class, 'index']);
 Route::get('/blogcategories/{id}', [BlogCategoryController::class, 'show']);
 Route::get('/blogs', [BlogController::class, 'index']);
 Route::get('/blogs/{id}', [BlogController::class, 'show']);
+Route::get('/blogs/category/{categoryId}', [BlogController::class, 'indexByCategory']);
 
 Route::middleware('auth:sanctum')->group(function () {
 
