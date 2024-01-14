@@ -100,6 +100,5 @@ class SupplierController extends Controller
                 'message' => $error->getMessage()
             ]);
         }
-        
     }
 }

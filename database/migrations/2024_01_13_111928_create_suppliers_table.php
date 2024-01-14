@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('unit');
             $table->foreignId('category_id')->constrained('categories');
             $table->string('location');
-            $table->string('image');
+            $table->array('image');
             $table->text('description')->nullable();
             $table->timestamps();
         });

@@ -14,12 +14,12 @@ class AboutController extends Controller
             return response()->json([
                 'status' => 'success',
                 'data' => $about
-            ]);
+            ], 200);
         } catch (\Exception $error) {
             return response()->json([
                 'status' => 'error',
                 'message' => $error->getMessage()
-            ]);
+            ], 500);
         }
     }
 
@@ -45,7 +45,7 @@ class AboutController extends Controller
             return response()->json([
                 'status' => 'success',
                 'data' => $about
-            ]);
+            ], 200);
         } catch (\Exception $error) {
             return response()->json([
                 'status' => 'error',

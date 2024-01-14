@@ -36,4 +36,9 @@ Route::prefix("/v1")->group(function(){
         Route::get("/{id}", [App\Http\Controllers\Api\SupplierController::class, 'getById']);
         Route::delete("/{id}", [App\Http\Controllers\Api\SupplierController::class, 'delete']);
     });
+
+    Route::prefix("/notification")->group(function(){
+        Route::post("/whatsapp", [App\Http\Controllers\Api\NotificationController::class, 'whatsappNotification']);
+        Route::get("/email", [App\Http\Controllers\Api\NotificationController::class, 'emailNotification']);
+    });
 });
