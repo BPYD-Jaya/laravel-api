@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\BlogCategoryController;
 use App\Http\Controllers\Api\BlogController;
+use App\Http\Controllers\Api\UnauthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -73,3 +74,5 @@ Route::get('/images/blog/{imageName}', function ($imageName) {
         return response()->json(['error' => 'Image not found'], 404);
     }
 });
+
+Route::get('/unauth', [UnauthController::class, 'unauth'])->name('unauth');
