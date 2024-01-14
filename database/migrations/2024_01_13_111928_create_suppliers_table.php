@@ -14,17 +14,21 @@ return new class extends Migration
         Schema::create('suppliers', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('phone');
-            $table->string('email');
+            $table->string('company_whatsapp_number');
+            $table->string('company_email');
             $table->string('company_name');
-            $table->string('product');
+            $table->string('company_category');
+            $table->string('brand');
+            $table->string('product_name');
             $table->string('price');
             $table->integer('stock');
-            $table->string('unit');
+            $table->string('volume');
             $table->foreignId('category_id')->constrained('categories');
-            $table->string('location');
-            $table->array('image');
+            $table->string('address');
+            $table->array('item_image');
             $table->text('description')->nullable();
+            $table->foreignId('province_id')->constrained('provinces');
+            $table->foreignId('city_id')->constrained('cities');
             $table->timestamps();
         });
     }
