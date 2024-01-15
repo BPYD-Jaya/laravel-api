@@ -6,16 +6,19 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-
 
 class CategoryController extends Controller
 {
     public function index()
     {
         $categories = Category::all();
+
+        // Add symlink for each category image
+        $categories = $categories->map(function ($category) {
+            $category['image_url'] = $this->getImageUrl($category->category_image);
+            return $category;
+        });
+
         return response()->json($categories);
     }
 
@@ -26,6 +29,9 @@ class CategoryController extends Controller
         if (!$category) {
             return response()->json(['message' => 'Category not found'], 404);
         }
+
+        // Add symlink for the category image
+        $category['image_url'] = $this->getImageUrl($category->category_image);
 
         return response()->json($category);
     }
@@ -41,10 +47,7 @@ class CategoryController extends Controller
 
         // Handle category image upload if provided
         if ($request->hasFile('category_image')) {
-            $image = $request->file('category_image');
-            $imageName = 'category_' . $category->id . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('category_images'), $imageName);
-            $category->update(['category_image' => $imageName]);
+            $this->uploadImage($request, $category);
         }
 
         return response()->json($category, 201);
@@ -63,27 +66,24 @@ class CategoryController extends Controller
             'category_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,heic|max:2048',
         ]);
 
-        // Update existing image or upload new image
+        // Check if the request has a new image
         if ($request->hasFile('category_image')) {
             // Delete old image
-            Storage::delete('public/images/category/' . $category->category_image);
-
-            // Upload new image
-            $imageName = time() . '.' . $request->category_image->getClientOriginalExtension();
-            $request->category_image->move(public_path('images/category_image'), $imageName);
-
+            Storage::delete('category_images/' . $category->category_image);
+            // Upload new image and update category data
+            $this->uploadImage($request, $category);
+        } else {
+            // If no new image, update only the category data
             $category->update([
-                'category_image' => $imageName,
+                'category' => $request->input('category'),
             ]);
         }
 
-        $category->update([
-            'category' => $request->input('category'),
-        ]);
+        // Add symlink for the category image
+        $category['image_url'] = $this->getImageUrl($category->category_image);
 
-        return response()->json(['category' => $category, 'message' => 'category updated successfully']);
+        return response()->json(['category' => $category, 'message' => 'Category updated successfully']);
     }
-
 
     public function destroy($id)
     {
@@ -100,10 +100,17 @@ class CategoryController extends Controller
 
         return response()->json(['message' => 'Category deleted'], 200);
     }
-    
+
     private function getImageUrl($imageName)
     {
-        $baseUrl = config('APP_URL');
-        return "{$baseUrl}/images/blog/{$imageName}";
+        return url("category_images/{$imageName}");
+    }
+
+    private function uploadImage(Request $request, Category $category)
+    {
+        $image = $request->file('category_image');
+        $imageName = 'category_' . $category->id . '.' . $image->getClientOriginalExtension();
+        $image->move(public_path('category_images'), $imageName);
+        $category->update(['category_image' => $imageName]);
     }
 }

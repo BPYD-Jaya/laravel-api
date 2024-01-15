@@ -35,7 +35,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 // Contoh Symlink Category
-Route::get('/images/categories/{imageName}', function ($imageName) {
+Route::get('/images/category/{imageName}', function ($imageName) {
     $imagePath = public_path('images/category_image/' . $imageName);
 
     if (File::exists($imagePath)) {
