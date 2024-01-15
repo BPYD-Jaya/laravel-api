@@ -35,6 +35,7 @@ Route::prefix("/v1")->group(function(){
         Route::post("/", [App\Http\Controllers\Api\SupplierController::class, 'register']);
         Route::get("/{id}", [App\Http\Controllers\Api\SupplierController::class, 'getById']);
         Route::delete("/{id}", [App\Http\Controllers\Api\SupplierController::class, 'delete']);
+        Route::post("/{id}/", [App\Http\Controllers\Api\SupplierController::class, 'addToProduct']);
     });
 
     Route::prefix("/notification")->group(function(){

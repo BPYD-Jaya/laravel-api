@@ -11,17 +11,20 @@ class Supplier extends Model
 
     protected $fillable = [
         'name',
-        'phone',
-        'company_phone',
+        'company_whatsapp_number',
         'company_email',
         'company_name',
-        'product',
+        'company_category',
+        'brand',
+        'product_name',
         'price',
         'stock',
-        'unit',
+        'volume',
         'category_id',
-        'location',
-        'image',
-        'description'
+        'address',
+        'description',
+        'province_id',
+        'city_id',
+        'item_image'
     ];
 }
