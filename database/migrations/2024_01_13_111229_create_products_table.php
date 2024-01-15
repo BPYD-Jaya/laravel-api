@@ -19,7 +19,7 @@ return new class extends Migration
             $table->integer('stock');
             $table->string('volume');
             $table->string('address');
-            $table->array('item_image');
+            $table->string('item_image');
             $table->text('description');
             $table->foreignId('category_id')->constrained();
             $table->foreignId('province_id')->constrained();
