@@ -26,6 +26,10 @@ return new class extends Migration
             $table->foreignId('city_id')->constrained();
             $table->string('company_name');
             $table->string('company_category');
+            $table->string('company_whatsapp_number');
+            $table->string('storage_type');
+            $table->string('packaging');
+            $table->json('additional_info');
             $table->timestamps();
         });
     }
