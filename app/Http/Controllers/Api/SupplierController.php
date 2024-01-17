@@ -107,24 +107,22 @@ class SupplierController extends Controller
         }
     }
 
-    public function addToProduct($id) {
+    public function addToProduct(Request $request) {
         try {
-            $supplierDetails = Supplier::findOrFail($id);
-            
             $product = Product::create([
-                'brand' => $supplierDetails->brand,
-                'product_name' => $supplierDetails->product_name,
-                'price' => $supplierDetails->price,
-                'stock' => $supplierDetails->stock,
-                'volume' => $supplierDetails->volume,
-                'category_id' => $supplierDetails->category_id,
-                'description' => $supplierDetails->description,
-                'province_id' => $supplierDetails->province_id,
-                'city_id' => $supplierDetails->city_id,
-                'company_name' => $supplierDetails->company_name,
-                'company_category' => $supplierDetails->company_category,
-                'address' => $supplierDetails->address,
-                'item_image' => $supplierDetails->item_image
+                'brand' => $request->brand,
+                'product_name' => $request->product_name,
+                'price' => $request->price,
+                'stock' => $request->stock,
+                'volume' => $request->volume,
+                'category_id' => $request->category_id,
+                'description' => $request->description,
+                'province_id' => $request->province_id,
+                'city_id' => $request->city_id,
+                'company_name' => $request->company_name,
+                'company_category' => $request->company_category,
+                'address' => $request->address,
+                'item_image' => $request->item_image
             ]);
 
             return response()->json([

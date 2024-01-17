@@ -41,7 +41,16 @@ class AboutController extends Controller
     public function update(Request $request, $id){
         try{
             $about = About::find($id);
+
+            if(!$about) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'about not found'
+                ], 404);
+            }
+            
             $about->update($request->all());
+
             return response()->json([
                 'status' => 'success',
                 'data' => $about
