@@ -55,35 +55,62 @@ class CategoryController extends Controller
 
     public function update(Request $request, $id)
     {
-        $category = Category::find($id);
-
-        if (!$category) {
-            return response()->json(['message' => 'Category not found'], 404);
-        }
-
-        $request->validate([
-            'category' => 'required',
-            'category_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,heic|max:2048',
-        ]);
-
-        // Check if the request has a new image
-        if ($request->hasFile('category_image')) {
-            // Delete old image
-            Storage::delete('category_images/' . $category->category_image);
-            // Upload new image and update category data
-            $this->uploadImage($request, $category);
-        } else {
-            // If no new image, update only the category data
-            $category->update([
-                'category' => $request->input('category'),
-            ]);
-        }
-
-        // Add symlink for the category image
-        $category['image_url'] = $this->getImageUrl($category->category_image);
-
-        return response()->json(['category' => $category, 'message' => 'Category updated successfully']);
+        try {
+            $category = Category::find($id);
+    
+            if (!$category) {
+                return response()->json(['message' => 'Category not found'], 404);
+            }
+    
+            $updateDetails = [];
+    
+            // Update 'category' field if provided
+            if ($request->has('category')) {
+                $updateDetails['category'] = $request->category;
+            }
+            echo $request->input('category');
+    
+// Update category image if provided
+if ($request->hasFile('category_image')) {
+    // Delete old image if it exists
+    if ($category->category_image) {
+        Storage::delete('category_images/' . $category->category_image);
     }
+
+    // Upload new image
+    $imageName = 'category_' . $category->id . '.' . $request->file('category_image')->getClientOriginalExtension();
+    $request->file('category_image')->move(public_path('category_images'), $imageName);
+    $updateDetails['category_image'] = $imageName;
+} elseif ($request->has('category_image')) {
+    // Update category image if it is not provided as a file
+    // Delete old image if it exists
+    if ($category->category_image) {
+        Storage::delete('category_images/' . $category->category_image);
+    }
+    $updateDetails['category_image'] = $request->input('category_image');
+}
+
+    
+            if (!empty($updateDetails)) {
+                $category->update($updateDetails);
+            }
+    
+            // Fetch the updated category data
+            $updatedCategory = Category::find($id);
+    
+            return response()->json([
+                'category' => $category,
+                'message' => 'Category updated successfully',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+    
+
 
     public function destroy($id)
     {
