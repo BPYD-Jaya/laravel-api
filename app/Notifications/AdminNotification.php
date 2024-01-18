@@ -11,13 +11,13 @@ class AdminNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    private $data;
+    
     /**
      * Create a new notification instance.
      */
-    public function __construct($data)
+    public function __construct()
     {
-        $this->data = $data;
+        
     }
 
     /**

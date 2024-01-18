@@ -6,26 +6,48 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Netflie\WhatsAppCloudApi\WebHook;
 use App\Models\User;
+use App\Notifications\AdminNotification;
+use Illuminate\Support\Facades\Notification;
+
+
 
 class NotificationController extends Controller
 {
     public function whatsappNotification() {
-        $payload = file_get_contents('php://input');
-        fwrite(STDOUT, print_r($payload, true). "\n");
+        try {
+            $payload = file_get_contents('php://input');
+            fwrite(STDOUT, print_r($payload, true). "\n");
 
-        $webhook = new WebHook();
+            $webhook = new WebHook();
 
-        fwrite(STDOUT, print_r($webhook->read(json_decode($payload, true)), true). "\n");
+            fwrite(STDOUT, print_r($webhook->read(json_decode($payload, true)), true). "\n");
 
-        fwrite(STDOUT, print_r($webhook->readAll(json_decode($payload, true)), true). "\n");
+            fwrite(STDOUT, print_r($webhook->readAll(json_decode($payload, true)), true). "\n");
+        } catch (\Exception $error) {
+            return response()->json([
+                'message' => 'Whatsapp failed to send',
+                'data' => $error->getMessage()
+            ], 400);
+        }
     }
 
     public function emailNotification() {
-        $userEmail = User::pluck('email')->toArray();
-        
-        return response()->json([
-            'message' => 'Email sent successfully',
-            'data' => $userEmail
-        ], 200);
+        try {
+            $userEmail = User::pluck('email')->toArray();
+    
+            foreach($userEmail as $email) {
+                Notification::send($email, new AdminNotification());
+            }
+    
+            return response()->json([
+                'message' => 'Email sent successfully',
+                'data' => $userEmail
+            ], 200);
+        } catch (\Exception $error) {
+            return response()->json([
+                'message' => 'Email failed to send',
+                'data' => $error->getMessage()
+            ], 400);
+        }
     }
 }

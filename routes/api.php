@@ -35,11 +35,14 @@ Route::prefix("/v1")->group(function(){
         Route::post("/", [App\Http\Controllers\Api\SupplierController::class, 'register']);
         Route::get("/{id}", [App\Http\Controllers\Api\SupplierController::class, 'getById']);
         Route::delete("/{id}", [App\Http\Controllers\Api\SupplierController::class, 'delete']);
-        Route::post("/{id}/", [App\Http\Controllers\Api\SupplierController::class, 'addToProduct']);
     });
 
     Route::prefix("/notification")->group(function(){
         Route::post("/whatsapp", [App\Http\Controllers\Api\NotificationController::class, 'whatsappNotification']);
         Route::get("/email", [App\Http\Controllers\Api\NotificationController::class, 'emailNotification']);
+    });
+
+    Route::prefix('/products')->group(function(){
+        Route::post('/', [App\Http\Controllers\Api\SupplierController::class, 'addToProduct']);
     });
 });

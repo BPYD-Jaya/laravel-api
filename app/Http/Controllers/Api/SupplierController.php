@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use App\Models\Supplier;
+use App\Http\Controllers\Api\NotificationController;
+use Mockery\Matcher\Not;
 
 class SupplierController extends Controller
 {
@@ -70,6 +72,8 @@ class SupplierController extends Controller
                 $data['item_image'] = $filename;
             }
 
+            $notifController = new NotificationController();
+            $notifController->emailNotification();
             $supplier = Supplier::create($data);
 
             return response()->json([
@@ -109,7 +113,15 @@ class SupplierController extends Controller
 
     public function addToProduct(Request $request) {
         try {
-            $product = Product::create([
+            $additionalInfo = $request->input('additional_info', []);
+
+            if(count($additionalInfo) > 0) {
+                $additionalInfo = json_encode($additionalInfo);
+            } else {
+                $additionalInfo = null;
+            }
+            
+            $data = [
                 'brand' => $request->brand,
                 'product_name' => $request->product_name,
                 'price' => $request->price,
@@ -121,9 +133,17 @@ class SupplierController extends Controller
                 'city_id' => $request->city_id,
                 'company_name' => $request->company_name,
                 'company_category' => $request->company_category,
+                'company_whatsapp_number' => $request->company_whatsapp_number,
                 'address' => $request->address,
-                'item_image' => $request->item_image
-            ]);
+                'item_image' => $request->item_image,
+                'storage_type' => $request->storage_type,
+                'packaging' => $request->packaging,
+                'additional_info' => $additionalInfo
+            ];
+
+            // dd($data);
+
+            $product = Product::create($data);
 
             return response()->json([
                 'status' => 'success',
