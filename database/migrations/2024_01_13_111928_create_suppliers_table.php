@@ -25,7 +25,7 @@ return new class extends Migration
             $table->string('volume');
             $table->foreignId('category_id')->constrained('categories');
             $table->string('address');
-            $table->array('item_image');
+            $table->string('item_image');
             $table->text('description')->nullable();
             $table->foreignId('province_id')->constrained('provinces');
             $table->foreignId('city_id')->constrained('cities');
