@@ -30,6 +30,7 @@ return new class extends Migration
             $table->string('storage_type');
             $table->string('packaging');
             $table->json('additional_info')->nullable();
+
             $table->timestamps();
         });
     }

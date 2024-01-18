@@ -1,5 +1,6 @@
 <?php
 
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -9,7 +10,8 @@ class Product extends Model
 {
     use HasFactory;
 
-    protected $fillable=[
+
+    protected $fillable = [
         'brand',
         'product_name',
         'price',
@@ -32,4 +34,24 @@ class Product extends Model
     protected $casts = [
         'additional_info' => 'array'
     ];
+
+
+    // Jika terdapat relasi dengan model Category
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'category_id');
+    }
+
+    // Jika terdapat relasi dengan model Province
+    public function province()
+    {
+        return $this->belongsTo(Province::class, 'province_id');
+    }
+
+    // Jika terdapat relasi dengan model City
+    public function city()
+    {
+        return $this->belongsTo(City::class, 'city_id');
+    }
+
 }
