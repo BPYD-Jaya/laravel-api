@@ -15,79 +15,36 @@ use App\Http\Controllers\Api\BlogController;
 use App\Http\Controllers\Api\UnauthController;
 
 
-
-
-// Category routes
-Route::get('/categories', [CategoryController::class, 'index']);
-Route::get('/categories/{id}', [CategoryController::class, 'show']);
-Route::post('/categories', [CategoryController::class, 'store']);
-Route::put('/categories/{id}', [CategoryController::class, 'update']);
-Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
-
-// Read
-Route::apiResource('categories', CategoryController::class);
-
-// Province routes
-Route::apiResource('provinces', ProvinceController::class);
-
-
-// City routes
-Route::apiResource('cities', CityController::class);
-
 // Product routes
 Route::apiResource('products', ProductController::class);
 
-
-
-// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-//     return $request->user();
-// });
-
-Route::prefix("/v1")->group(function(){
-    Route::prefix("/about")->group(function(){
+Route::prefix("/v1")->group(function () {
+    Route::prefix("/about")->group(function () {
         Route::get("/", [App\Http\Controllers\Api\AboutController::class, 'get']);
-        Route::post("/", [App\Http\Controllers\Api\AboutController::class, 'create']);
-        Route::put("/{id}", [App\Http\Controllers\Api\AboutController::class, 'update']);
+        Route::post("/", [App\Http\Controllers\Api\AboutController::class, 'create'])->middleware('auth:sanctum');
+        Route::put("/{id}", [App\Http\Controllers\Api\AboutController::class, 'update'])->middleware('auth:sanctum');
     });
-    
-    Route::prefix("/customer")->group(function(){
-        Route::get("/", [App\Http\Controllers\Api\CustomerController::class, 'get']);
+
+    Route::prefix("/customer")->group(function () {
+        Route::get("/", [App\Http\Controllers\Api\CustomerController::class, 'get'])->middleware('auth:sanctum');
         Route::post("/", [App\Http\Controllers\Api\CustomerController::class, 'firstNotification']);
     });
 
-    Route::prefix("/supplier")->group(function(){
-        Route::get("/", [App\Http\Controllers\Api\SupplierController::class, 'get']);
+    Route::prefix("/supplier")->group(function () {
+        Route::get("/", [App\Http\Controllers\Api\SupplierController::class, 'get'])->middleware('auth:sanctum');
         Route::post("/", [App\Http\Controllers\Api\SupplierController::class, 'register']);
-        Route::get("/{id}", [App\Http\Controllers\Api\SupplierController::class, 'getById']);
-        Route::delete("/{id}", [App\Http\Controllers\Api\SupplierController::class, 'delete']);
+        Route::get("/{id}", [App\Http\Controllers\Api\SupplierController::class, 'getById'])->middleware('auth:sanctum');
+        Route::delete("/{id}", [App\Http\Controllers\Api\SupplierController::class, 'delete'])->middleware('auth:sanctum');
     });
 
-    Route::prefix("/notification")->group(function(){
-        Route::post("/whatsapp", [App\Http\Controllers\Api\NotificationController::class, 'whatsappNotification']);
-        Route::get("/email", [App\Http\Controllers\Api\NotificationController::class, 'emailNotification']);
+    Route::prefix("/notification")->group(function () {
+        Route::post("/whatsapp", [App\Http\Controllers\Api\NotificationController::class, 'whatsappNotification'])->middleware('auth:sanctum');
+        Route::get("/email", [App\Http\Controllers\Api\NotificationController::class, 'emailNotification'])->middleware('auth:sanctum');
     });
 
-    Route::prefix('/products')->group(function(){
-        Route::post('/', [App\Http\Controllers\Api\SupplierController::class, 'addToProduct']);
+    Route::prefix('/addtoproducts')->group(function () {
+        Route::post('/', [App\Http\Controllers\Api\SupplierController::class, 'addToProduct'])->middleware('auth:sanctum');
     });
-});
-
-// Contoh Symlink Category
-Route::get('/images/category/{imageName}', function ($imageName) {
-    $imagePath = public_path('images/category_image/' . $imageName);
-
-    if (File::exists($imagePath)) {
-        $file = File::get($imagePath);
-        $type = File::mimeType($imagePath);
-
-        $response = Response::make($file, 200);
-        $response->header("Content-Type", $type);
-
-        return $response;
-    } else {
-        // Handle file not found
-        return response()->json(['error' => 'Image not found'], 404);
-    }
 });
 
 Route::post('/login', [AuthController::class, 'login']);
@@ -96,9 +53,19 @@ Route::get('/blogcategories/{id}', [BlogCategoryController::class, 'show']);
 Route::get('/blogs', [BlogController::class, 'index']);
 Route::get('/blogs/{id}', [BlogController::class, 'show']);
 Route::get('/blogs/category/{categoryId}', [BlogController::class, 'indexByCategory']);
+Route::get('/categories', [CategoryController::class, 'index']);
+Route::get('/categories/{id}', [CategoryController::class, 'show']);
+Route::get('/provinces', [ProvinceController::class, 'index']);
+Route::get('/provinces/{id}', [ProvinceController::class, 'show']);
+Route::get('/cities', [CityController::class, 'index']);
+Route::get('/cities/{id}', [CityController::class, 'show']);
+Route::get('/products', [ProductController::class, 'index']);
+Route::get('/products/{id}', [ProductController::class, 'show']);
+Route::get('/categories', [CategoryController::class, 'index']);
+Route::get('/categories/{id}', [CategoryController::class, 'show']);
+Route::get('/unauth', [UnauthController::class, 'unauth'])->name('unauth');
 
 Route::middleware('auth:sanctum')->group(function () {
-
     // Get Information Authenticated User
     Route::get('/user', function (Request $request) {
         return $request->user();
@@ -121,11 +88,47 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/blogs/{id}', [BlogController::class, 'update']);
     Route::delete('/blogs/{id}', [BlogController::class, 'destroy']);
 
+    Route::post('/categories', [CategoryController::class, 'store']);
+    Route::put('/categories/{id}', [CategoryController::class, 'update']);
+    Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
+
+    Route::post('/provinces', [ProvinceController::class, 'store']);
+    Route::put('/provinces/{id}', [ProvinceController::class, 'update']);
+    Route::delete('/provinces/{id}', [ProvinceController::class, 'destroy']);
+
+    Route::post('/cities', [CityController::class, 'store']);
+    Route::put('/cities/{id}', [CityController::class, 'update']);
+    Route::delete('/cities/{id}', [CityController::class, 'destroy']);
+
+    Route::post('/products', [ProductController::class, 'store']);
+    Route::put('/products/{id}', [ProductController::class, 'update']);
+    Route::delete('/products/{id}', [ProductController::class, 'destroy']);
+
+    Route::post('/categories', [CategoryController::class, 'store']);
+    Route::put('/categories/{id}', [CategoryController::class, 'update']);
+    Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
+
     // Logout
     Route::post('/logout', [AuthController::class, 'logout']);
 });
 
-// Contoh Symlink Blog
+Route::get('/images/category/{imageName}', function ($imageName) {
+    $imagePath = public_path('images/category_image/' . $imageName);
+
+    if (File::exists($imagePath)) {
+        $file = File::get($imagePath);
+        $type = File::mimeType($imagePath);
+
+        $response = Response::make($file, 200);
+        $response->header("Content-Type", $type);
+
+        return $response;
+    } else {
+        // Handle file not found
+        return response()->json(['error' => 'Image not found'], 404);
+    }
+});
+
 Route::get('/images/blog/{imageName}', function ($imageName) {
     $imagePath = public_path('images/blog/' . $imageName);
 
@@ -142,5 +145,3 @@ Route::get('/images/blog/{imageName}', function ($imageName) {
         return response()->json(['error' => 'Image not found'], 404);
     }
 });
-
-Route::get('/unauth', [UnauthController::class, 'unauth'])->name('unauth');
