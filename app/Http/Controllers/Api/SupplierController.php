@@ -120,6 +120,8 @@ class SupplierController extends Controller
             } else {
                 $additionalInfo = null;
             }
+
+            $newAdditionalInfo = json_decode($additionalInfo, true);
             
             $data = [
                 'brand' => $request->brand,
@@ -138,7 +140,7 @@ class SupplierController extends Controller
                 'item_image' => $request->item_image,
                 'storage_type' => $request->storage_type,
                 'packaging' => $request->packaging,
-                'additional_info' => $additionalInfo
+                'additional_info' => $newAdditionalInfo
             ];
 
             // dd($data);
