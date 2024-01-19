@@ -21,15 +21,19 @@ class BlogController extends Controller
      */
     public function index()
     {
-        $blogs = Blog::all();
+        $blogs = Blog::with('blog_category')
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
 
-        // Add link_image to each blog entry
+        // Tambahkan link_image ke setiap entri blog
         foreach ($blogs as $blog) {
             $blog->link_image = $this->getImageUrl($blog->blog_image);
         }
 
         return response()->json(['blogs' => $blogs]);
     }
+
+
 
     /**
      * Store a newly created resource in storage.
@@ -185,8 +189,9 @@ class BlogController extends Controller
      */
     public function indexByCategory($categoryId)
     {
-        // Mengambil semua blog berdasarkan kategori
-        $blogs = Blog::where('blog_category_id', $categoryId)->get();
+        $blogs = Blog::where('blog_category_id', $categoryId)
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
 
         // Add link_image to each blog entry
         foreach ($blogs as $blog) {
