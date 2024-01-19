@@ -85,7 +85,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // CRUD Blogs
     Route::post('/blogs', [BlogController::class, 'store']);
-    Route::put('/blogs/{id}', [BlogController::class, 'update']);
+    Route::patch('/blogs/update/{id}', [BlogController::class, 'update']);
     Route::delete('/blogs/{id}', [BlogController::class, 'destroy']);
 
     Route::post('/categories', [CategoryController::class, 'store']);

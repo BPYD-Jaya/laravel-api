@@ -114,38 +114,45 @@ class BlogController extends Controller
         }
 
         $request->validate([
-            'title' => 'required|string|max:255',
-            'content' => 'required|string',
+            'title' => 'string|max:255',
+            'content' => 'string',
             'blog_image' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
-            'blog_category_id' => 'required|exists:blog_categories,id',
-            'date' => 'required|date',
-            'writer' => 'required|string|max:255',
+            'blog_category_id' => 'exists:blog_categories,id',
+            'date' => 'date',
+            'writer' => 'string|max:255',
         ]);
 
         // Update existing image or upload new image
         if ($request->hasFile('blog_image')) {
             // Delete old image
-            Storage::delete('public/images/blog/' . $blog->blog_image);
+            $oldImagePath = public_path('images/blog/' . $blog->blog_image);
+            if (file_exists($oldImagePath)) {
+                unlink($oldImagePath);
+            }
 
             // Upload new image
-            $imageName = time() . '.' . $request->blog_image->getClientOriginalExtension();
-            $request->blog_image->move(public_path('images/blog'), $imageName);
+            $imageName = time() . '.' . $request->file('blog_image')->getClientOriginalExtension();
+            $request->file('blog_image')->move(public_path('images/blog'), $imageName);
 
             $blog->update([
                 'blog_image' => $imageName,
             ]);
         }
 
-        $blog->update([
-            'title' => $request->input('title'),
-            'content' => $request->input('content'),
-            'blog_category_id' => $request->input('blog_category_id'),
-            'date' => $request->input('date'),
-            'writer' => $request->input('writer'),
-        ]);
+        // Update other blog details only if the input is not empty
+        $updateData = [
+            'title' => $request->input('title') ?? $blog->title,
+            'content' => $request->input('content') ?? $blog->content,
+            'blog_category_id' => $request->input('blog_category_id') ?? $blog->blog_category_id,
+            'date' => $request->input('date') ?? $blog->date,
+            'writer' => $request->input('writer') ?? $blog->writer,
+        ];
+
+        $blog->update($updateData);
 
         return response()->json(['blog' => $blog, 'message' => 'Blog updated successfully']);
     }
+
 
     /**
      * Remove the specified resource from storage.
