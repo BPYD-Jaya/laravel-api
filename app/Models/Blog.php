@@ -30,8 +30,8 @@ class Blog extends Model
     ];
 
     // Relasi dengan model BlogCategory
-    public function category()
+    public function blog_category()
     {
-        return $this->belongsTo(BlogCategory::class, 'blog_category_id');
+        return $this->belongsTo(BlogCategory::class, 'blog_category_id', 'id');
     }
 }
