@@ -12,8 +12,31 @@ class ProductController extends Controller
 {
     public function index()
     {
-        $products = Product::get();
-        
+        $query = Product::query();
+
+        // Filter by category_id
+        if ($request->has('category_id')) {
+            $query->where('category_id', $request->input('category_id'));
+        }
+
+        // Filter by province_id
+        if ($request->has('province_id')) {
+            $query->where('province_id', $request->input('province_id'));
+        }
+
+        // Filter by city_id
+        if ($request->has('city_id')) {
+            $query->where('city_id', $request->input('city_id'));
+        }
+
+        $products = $query->get();
+
+        // Tambahkan image URL untuk setiap produk
+        $products = $products->map(function ($product) {
+            $product['image_url'] = $this->getImageUrl($product->item_image);
+            return $product;
+        });
+
         return response()->json($products);
     }
 
@@ -30,35 +53,6 @@ class ProductController extends Controller
 
     public function store(Request $request)
     {
-        // $request->validate([
-        //     'name' => 'nullable',
-        //     'price' => 'required',
-        //     'stock' => 'required',
-        //     'unit' => 'required',
-        //     'item_image' => 'required|image|mimes:jpeg,png,jpg,gif,svg,heic|max:2048',
-        //     'description' => 'nullable',
-        //     'category_id' => 'required|exists:categories,id',
-        //     'province_id' => 'required|exists:provinces,id',
-        //     'city_id' => 'required|exists:cities,id',
-        // ]);
-    
-        // $imageName = uniqid('product_') . '.' . $request->file('item_image')->getClientOriginalExtension();
-    
-        // $product = Product::create([
-        //     'name' => $request->input('name'),
-        //     'price' => $request->input('price'),
-        //     'stock' => $request->input('stock'),
-        //     'unit' => $request->input('unit'),
-        //     'item_image' => $imageName,
-        //     'description' => $request->input('description'),
-        //     'category_id' => $request->input('category_id'),
-        //     'province_id' => $request->input('province_id'),
-        //     'city_id' => $request->input('city_id'),
-        // ]);
-    
-        // $request->file('item_image')->storeAs('public/product_images', $imageName);
-    
-        // return response()->json($product, 201);
         try {
             $additionalInfo = $request->input('additional_info', []);
 
@@ -182,5 +176,18 @@ class ProductController extends Controller
         $product->delete();
 
         return response()->json(['message' => 'Product deleted'], 200);
+    }
+
+    private function getImageUrl($imageName)
+    {
+        return url("public/product_images/{$imageName}");
+    }
+
+    private function uploadImage(Request $request, Product $product)
+    {
+        $image = $request->file('item_image');
+        $imageName = uniqid('product_') . '.' . $image->getClientOriginalExtension();
+        $image->storeAs('public/product_images', $imageName);
+        $product->update(['item_image' => $imageName]);
     }
 }
