@@ -7,17 +7,17 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class AdminNotification extends Notification implements ShouldQueue
+class AdminNotification extends Notification
 {
     use Queueable;
 
-    
+    private $supplier;
     /**
      * Create a new notification instance.
      */
-    public function __construct()
+    public function __construct($supplier)
     {
-        
+        $this->supplier = $supplier;
     }
 
     /**
@@ -27,7 +27,7 @@ class AdminNotification extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['mail' ,'database'];
     }
 
     /**
@@ -49,7 +49,8 @@ class AdminNotification extends Notification implements ShouldQueue
     public function toArray(object $notifiable): array
     {
         return [
-            //
+            'name' => $this->supplier->name,
+            'company_email' => $this->supplier->company_email,
         ];
     }
 }

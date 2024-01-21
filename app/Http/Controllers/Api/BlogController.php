@@ -52,8 +52,10 @@ class BlogController extends Controller
                 'writer' => 'required|string|max:255',
             ]);
 
-            $imageName = time() . '.' . $request->blog_image->getClientOriginalExtension();
-            $request->blog_image->move(public_path('images/blog'), $imageName);
+            if($request->hasFile('blog_image')){
+                $imageName = 'blog-' . time() . '.' . $request->file('blog_image')->getClientOriginalExtension();
+                $request->blog_image->storeAs('public/images/blog', $imageName);
+            }
 
             DB::beginTransaction();
 
@@ -125,10 +127,10 @@ class BlogController extends Controller
         // Update existing image or upload new image
         if ($request->hasFile('blog_image')) {
             // Delete old image
-            Storage::delete('public/images/blog/' . $blog->blog_image);
+            Storage::delete('public/images/blogs/' . $blog->blog_image);
 
             // Upload new image
-            $imageName = time() . '.' . $request->blog_image->getClientOriginalExtension();
+            $imageName = 'blog-' . time() . '.' . $request->blog_image->getClientOriginalExtension();
             $request->blog_image->move(public_path('images/blog'), $imageName);
 
             $blog->update([
