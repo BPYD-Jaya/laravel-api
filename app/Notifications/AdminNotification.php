@@ -36,9 +36,8 @@ class AdminNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-                    ->line('The introduction to the notification.')
-                    ->action('Notification Action', url('/'))
-                    ->line('Thank you for using our application!');
+                    ->line($this->supplier->name . ' has registered as a supplier.')
+                    ->line('Please check their details');
     }
 
     /**
@@ -51,6 +50,7 @@ class AdminNotification extends Notification
         return [
             'name' => $this->supplier->name,
             'company_email' => $this->supplier->company_email,
+            'product_name' => $this->supplier->product_name
         ];
     }
 }

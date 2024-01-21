@@ -111,8 +111,6 @@ class UserController extends Controller
 
     public function dashboard() {
         try {
-            $userEmail = User::all()->pluck('email');
-            echo $userEmail;
             $result = DB::table('products')
                 ->select(DB::raw("'All Products' AS kolom"), DB::raw('COUNT(*) AS VALUE'))
                 ->unionAll(function ($query) {

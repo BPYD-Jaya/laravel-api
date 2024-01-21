@@ -33,10 +33,10 @@ class NotificationController extends Controller
 
     public function emailNotification() {
         try {
-            $notifications = auth()->user()->unreadNotifications;
+            $notifications = auth()->user()->unreadNotifications->pluck('data');
 
             return response()->json([
-                'message' => 'Email sent successfully',
+                'message' => 'Notification sent successfully',
                 'data' => $notifications
             ], 200);
         } catch (\Exception $error) {

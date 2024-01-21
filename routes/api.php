@@ -20,32 +20,32 @@ use App\Http\Controllers\Api\UnauthController;
 Route::apiResource('products', ProductController::class);
 
 
-    Route::prefix("/about")->group(function () {
-        Route::get("/", [App\Http\Controllers\Api\AboutController::class, 'get']);
-        Route::post("/", [App\Http\Controllers\Api\AboutController::class, 'create'])->middleware('auth:sanctum');
-        Route::put("/{id}", [App\Http\Controllers\Api\AboutController::class, 'update'])->middleware('auth:sanctum');
-    });
+Route::prefix("/about")->group(function () {
+    Route::get("/", [App\Http\Controllers\Api\AboutController::class, 'get']);
+    Route::post("/", [App\Http\Controllers\Api\AboutController::class, 'create'])->middleware('auth:sanctum');
+    Route::put("/{id}", [App\Http\Controllers\Api\AboutController::class, 'update'])->middleware('auth:sanctum');
+});
 
-    Route::prefix("/customer")->group(function () {
-        Route::get("/", [App\Http\Controllers\Api\CustomerController::class, 'get'])->middleware('auth:sanctum');
-        Route::post("/", [App\Http\Controllers\Api\CustomerController::class, 'firstNotification']);
-    });
+Route::prefix("/customer")->group(function () {
+    Route::get("/", [App\Http\Controllers\Api\CustomerController::class, 'get'])->middleware('auth:sanctum');
+    Route::post("/", [App\Http\Controllers\Api\CustomerController::class, 'firstNotification']);
+});
 
-    Route::prefix("/supplier")->group(function () {
-        Route::get("/", [App\Http\Controllers\Api\SupplierController::class, 'get']);
-        Route::post("/", [App\Http\Controllers\Api\SupplierController::class, 'register']);
-        Route::get("/{id}", [App\Http\Controllers\Api\SupplierController::class, 'getById'])->middleware('auth:sanctum');
-        Route::delete("/{id}", [App\Http\Controllers\Api\SupplierController::class, 'delete'])->middleware('auth:sanctum');
-    });
+Route::prefix("/supplier")->group(function () {
+    Route::get("/", [App\Http\Controllers\Api\SupplierController::class, 'get']);
+    Route::post("/", [App\Http\Controllers\Api\SupplierController::class, 'register']);
+    Route::get("/{id}", [App\Http\Controllers\Api\SupplierController::class, 'getById'])->middleware('auth:sanctum');
+    Route::delete("/{id}", [App\Http\Controllers\Api\SupplierController::class, 'delete'])->middleware('auth:sanctum');
+});
 
-    Route::prefix("/notification")->group(function () {
-        Route::post("/whatsapp", [App\Http\Controllers\Api\NotificationController::class, 'whatsappNotification'])->middleware('auth:sanctum');
-        Route::get("/email", [App\Http\Controllers\Api\NotificationController::class, 'emailNotification']);
-    });
+Route::prefix("/notification")->group(function () {
+    Route::post("/whatsapp", [App\Http\Controllers\Api\NotificationController::class, 'whatsappNotification'])->middleware('auth:sanctum');
+    Route::get("/email", [App\Http\Controllers\Api\NotificationController::class, 'emailNotification'])->middleware('auth:sanctum');
+});
 
-    Route::prefix('/addtoproducts')->group(function () {
-        Route::post('{id}/', [App\Http\Controllers\Api\SupplierController::class, 'addToProduct'])->middleware('auth:sanctum');
-    });
+Route::prefix('/addtoproducts')->group(function () {
+    Route::post('{id}/', [App\Http\Controllers\Api\SupplierController::class, 'addToProduct'])->middleware('auth:sanctum');
+});
 
 Route::get('/dashboard', [UserController::class, 'dashboard'])->middleware('auth:sanctum');
 

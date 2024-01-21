@@ -32,8 +32,5 @@ class SendNotification
             Notification::send($users, new AdminNotification($event->user));
         }
 
-        foreach($userEmail as $email) {
-            Mail::to($email)->send(new AdminMail($event->user));
-        }
     }   
 }
