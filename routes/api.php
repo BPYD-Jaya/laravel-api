@@ -79,7 +79,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/users/{id}', [UserController::class, 'destroy']);
 
     // CRUD Blog Categories
-    Route::post('/blogcategories', [BlogCategoryController::class, 'store']);
+    Route::post('/blogcategories/create', [BlogCategoryController::class, 'store']);
     Route::put('/blogcategories/{id}', [BlogCategoryController::class, 'update']);
     Route::delete('/blogcategories/{id}', [BlogCategoryController::class, 'destroy']);
 
@@ -88,7 +88,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/blogs/update/{id}', [BlogController::class, 'update']);
     Route::delete('/blogs/{id}', [BlogController::class, 'destroy']);
 
-    Route::post('/categories', [CategoryController::class, 'store']);
+    Route::post('/categories/create', [CategoryController::class, 'store']);
     Route::put('/categories/{id}', [CategoryController::class, 'update']);
     Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
 
@@ -96,17 +96,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/provinces/{id}', [ProvinceController::class, 'update']);
     Route::delete('/provinces/{id}', [ProvinceController::class, 'destroy']);
 
-    Route::post('/cities', [CityController::class, 'store']);
+    Route::post('/cities/create', [CityController::class, 'store']);
     Route::put('/cities/{id}', [CityController::class, 'update']);
     Route::delete('/cities/{id}', [CityController::class, 'destroy']);
 
     Route::post('/products', [ProductController::class, 'store']);
     Route::put('/products/{id}', [ProductController::class, 'update']);
     Route::delete('/products/{id}', [ProductController::class, 'destroy']);
-
-    Route::post('/categories', [CategoryController::class, 'store']);
-    Route::put('/categories/{id}', [CategoryController::class, 'update']);
-    Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
 
     // Logout
     Route::post('/logout', [AuthController::class, 'logout']);
