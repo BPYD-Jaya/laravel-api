@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('brand');
             $table->string('product_name');
-            $table->decimal('price');
+            $table->decimal('price', 20, 2);
             $table->integer('stock');
             $table->string('volume');
             $table->string('address');
