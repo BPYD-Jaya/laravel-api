@@ -95,6 +95,8 @@ class BlogController extends Controller
             return response()->json(['message' => 'Blog not found'], 404);
         }
 
+        $blog->link_image = $this->getImageUrl($blog->blog_image);
+
         return response()->json(['blog' => $blog]);
     }
 
