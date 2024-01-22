@@ -172,8 +172,6 @@ class ProductController extends Controller
             ]);
     
             $oldImage = $product->item_image;
-            // Update the product attributes
-            // $product->update($request->all());
             
             if($request->hasFile('item_image')) {
                 Storage::delete('public/images/products/' . $oldImage);
