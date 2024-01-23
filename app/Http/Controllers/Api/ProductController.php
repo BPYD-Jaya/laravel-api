@@ -122,15 +122,21 @@ class ProductController extends Controller
     {
         try {
             $additionalInfo = $request->input('additional_info', []);
+            $filename = null;
 
-            if(count($additionalInfo) > 0) {
-                $additionalInfo = json_encode($additionalInfo);
-            } else {
-                $additionalInfo = null;
+            if ($request->hasFile('item_image')) {
+                $file = $request->file('item_image');
+                $filename = 'product-' . time() . '.' . $file->getClientOriginalExtension();
+
+                // Pastikan direktori penyimpanan ada
+                $path = $file->storeAs('public/images/products/', $filename);
+
+                // Jika belum dilakukan, jalankan perintah storage:link
+                // php artisan storage:link
             }
 
-            $newAdditionalInfo = json_decode($additionalInfo, true);
-            
+            $newAdditionalInfo = json_decode(json_encode($additionalInfo), true);
+
             $request->validate([
                 'brand' => 'required',
                 'product_name' => 'required',
@@ -150,12 +156,6 @@ class ProductController extends Controller
                 'packaging' => 'required',
                 'additional_info' => 'nullable'
             ]);
-
-            if($request->hasFile('item_image')) {
-                $file = $request->file('item_image');
-                $filename = 'product-'.time() . '.' . $file->getClientOriginalExtension();
-                $file->storeAs('public/images/products/', $filename);
-            }
 
             $product = Product::create([
                 'brand' => $request->brand,
@@ -181,7 +181,7 @@ class ProductController extends Controller
                 'status' => 'success',
                 'data' => $product,
             ], 201);
-        } catch(\Exception $error) {
+        } catch (\Exception $error) {
             return response()->json([
                 'status' => 'error',
                 'message' => $error->getMessage()
@@ -190,46 +190,98 @@ class ProductController extends Controller
     }
 
 
+    // public function update(Request $request, $id)
+    // {
+    //     $product = Product::find($id);
+    
+    //     if (!$product) {
+    //         return response()->json(['message' => 'Product not found'], 404);
+    //     }
+    
+    //     $request->validate([
+    //         'name' => 'nullable',
+    //         'price' => 'required',
+    //         'stock' => 'required',
+    //         'unit' => 'required',
+    //         'item_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,heic|max:2048',
+    //         'description' => 'nullable',
+    //         'category_id' => 'required|exists:categories,id',
+    //         'province_id' => 'required|exists:provinces,id',
+    //         'city_id' => 'required|exists:cities,id',
+    //     ]);
+    
+    //     // Simpan item_image lama untuk referensi
+    //     $oldItemImage = $product->item_image;
+    
+    //     // Update produk dengan parameter yang diberikan
+    //     $product->update($request->only([
+    //         'name', 'price', 'stock', 'unit', 'description',
+    //         'category_id', 'province_id', 'city_id',
+    //     ]));
+    
+    //     // Handle item image update if provided
+    //     if ($request->hasFile('item_image')) {
+    //         // Delete the old image
+    //         Storage::delete('public/product_images/' . $oldItemImage);
+    
+    //         // Upload and update with the new image
+    //         $imageName = uniqid('product_') . '.' . $request->file('item_image')->getClientOriginalExtension();
+    //         $request->file('item_image')->storeAs('public/product_images', $imageName);
+    //         $product->update(['item_image' => $imageName]);
+    //     }
+    
+    //     return response()->json($product, 200);
+    // }
+
     public function update(Request $request, $id)
     {
         $product = Product::find($id);
-    
+
         if (!$product) {
             return response()->json(['message' => 'Product not found'], 404);
         }
-    
+
         $request->validate([
-            'name' => 'nullable',
+            'brand' => 'nullable',
+            'product_name' => 'nullable',
             'price' => 'required',
             'stock' => 'required',
-            'unit' => 'required',
-            'item_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,heic|max:2048',
-            'description' => 'nullable',
+            'volume' => 'required',
             'category_id' => 'required|exists:categories,id',
+            'description' => 'nullable',
             'province_id' => 'required|exists:provinces,id',
             'city_id' => 'required|exists:cities,id',
+            'company_name' => 'nullable',
+            'company_category' => 'nullable',
+            'company_whatsapp_number' => 'nullable',
+            'address' => 'nullable',
+            'item_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,heic|max:2048',
+            'storage_type' => 'nullable',
+            'packaging' => 'nullable',
+            'additional_info' => 'nullable',
         ]);
-    
+
         // Simpan item_image lama untuk referensi
         $oldItemImage = $product->item_image;
-    
+
         // Update produk dengan parameter yang diberikan
         $product->update($request->only([
-            'name', 'price', 'stock', 'unit', 'description',
-            'category_id', 'province_id', 'city_id',
+            'brand', 'product_name', 'price', 'stock', 'volume', 'category_id',
+            'description', 'province_id', 'city_id', 'company_name', 'company_category',
+            'company_whatsapp_number', 'address', 'storage_type', 'packaging', 'additional_info',
         ]));
-    
+
         // Handle item image update if provided
         if ($request->hasFile('item_image')) {
             // Delete the old image
-            Storage::delete('public/product_images/' . $oldItemImage);
-    
+            Storage::delete('public/images/products/' . $oldItemImage);
+
             // Upload and update with the new image
             $imageName = uniqid('product_') . '.' . $request->file('item_image')->getClientOriginalExtension();
-            $request->file('item_image')->storeAs('public/product_images', $imageName);
+            $request->file('item_image')->storeAs('public/images/products/', $imageName);
             $product->update(['item_image' => $imageName]);
         }
-    
+
         return response()->json($product, 200);
     }
 
