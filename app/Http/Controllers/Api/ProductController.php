@@ -51,6 +51,73 @@ class ProductController extends Controller
         return response()->json($product);
     }
 
+    // public function store(Request $request)
+    // {
+    //     try {
+    //         $additionalInfo = $request->input('additional_info', []);
+
+    //         if(count($additionalInfo) > 0) {
+    //             $additionalInfo = json_encode($additionalInfo);
+    //         } else {
+    //             $additionalInfo = null;
+    //         }
+
+    //         $newAdditionalInfo = json_decode($additionalInfo, true);
+            
+    //         $request->validate([
+    //             'brand' => 'required',
+    //             'product_name' => 'required',
+    //             'price' => 'required',
+    //             'stock' => 'required',
+    //             'volume' => 'required',
+    //             'category_id' => 'required',
+    //             'description' => 'required',
+    //             'province_id' => 'required',
+    //             'city_id' => 'required',
+    //             'company_name' => 'required',
+    //             'company_category' => 'required',
+    //             'company_whatsapp_number' => 'required',
+    //             'address' => 'required',
+    //             'item_image' => 'required',
+    //             'storage_type' => 'required',
+    //             'packaging' => 'required',
+    //             'additional_info' => 'nullable'
+    //         ]);
+
+    //         // dd($data);
+
+    //         $product = Product::create([
+    //             'brand' => $request->brand,
+    //             'product_name' => $request->product_name,
+    //             'price' => $request->price,
+    //             'stock' => $request->stock,
+    //             'volume' => $request->volume,
+    //             'category_id' => $request->category_id,
+    //             'description' => $request->description,
+    //             'province_id' => $request->province_id,
+    //             'city_id' => $request->city_id,
+    //             'company_name' => $request->company_name,
+    //             'company_category' => $request->company_category,
+    //             'company_whatsapp_number' => $request->company_whatsapp_number,
+    //             'address' => $request->address,
+    //             'item_image' => $request->item_image,
+    //             'storage_type' => $request->storage_type,
+    //             'packaging' => $request->packaging,
+    //             'additional_info' => $newAdditionalInfo
+    //         ]);
+
+    //         return response()->json([
+    //             'status' => 'success',
+    //             'data' => $product
+    //         ]);
+    //     } catch(\Exception $error) {
+    //         return response()->json([
+    //             'status' => 'error',
+    //             'message' => $error->getMessage()
+    //         ]);
+    //     }
+    // }
+
     public function store(Request $request)
     {
         try {
@@ -78,13 +145,17 @@ class ProductController extends Controller
                 'company_category' => 'required',
                 'company_whatsapp_number' => 'required',
                 'address' => 'required',
-                'item_image' => 'required',
+                'item_image' => 'required|image|mimes:jpeg,png,jpg,gif,svg,heic|max:2048',
                 'storage_type' => 'required',
                 'packaging' => 'required',
                 'additional_info' => 'nullable'
             ]);
 
-            // dd($data);
+            if($request->hasFile('item_image')) {
+                $file = $request->file('item_image');
+                $filename = 'product-'.time() . '.' . $file->getClientOriginalExtension();
+                $file->storeAs('public/images/products/', $filename);
+            }
 
             $product = Product::create([
                 'brand' => $request->brand,
@@ -100,7 +171,7 @@ class ProductController extends Controller
                 'company_category' => $request->company_category,
                 'company_whatsapp_number' => $request->company_whatsapp_number,
                 'address' => $request->address,
-                'item_image' => $request->item_image,
+                'item_image' => $filename,
                 'storage_type' => $request->storage_type,
                 'packaging' => $request->packaging,
                 'additional_info' => $newAdditionalInfo
@@ -108,13 +179,13 @@ class ProductController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'data' => $product
-            ]);
+                'data' => $product,
+            ], 201);
         } catch(\Exception $error) {
             return response()->json([
                 'status' => 'error',
                 'message' => $error->getMessage()
-            ]);
+            ], 500);
         }
     }
 
