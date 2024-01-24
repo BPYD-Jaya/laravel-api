@@ -28,6 +28,7 @@ class BlogController extends Controller
         // Tambahkan link_image ke setiap entri blog
         foreach ($blogs as $blog) {
             $blog->link_image = $this->getImageUrl($blog->blog_image);
+            $blog->formatted_date = Carbon::parse($blog->created_at)->format('Y-m-d H:i');
         }
 
         return response()->json(['blogs' => $blogs]);
@@ -96,6 +97,7 @@ class BlogController extends Controller
         }
 
         $blog->link_image = $this->getImageUrl($blog->blog_image);
+        $blog->formatted_date = Carbon::parse($blog->created_at)->format('Y-m-d H:i');
 
         return response()->json(['blog' => $blog]);
     }
