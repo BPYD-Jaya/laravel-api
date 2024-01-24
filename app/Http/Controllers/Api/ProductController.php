@@ -66,14 +66,14 @@ class ProductController extends Controller
         try {
             $additionalInfo = $request->input('additional_info', []);
 
-            if (count($additionalInfo) > 0) {
+            if(count($additionalInfo) > 0) {
                 $additionalInfo = json_encode($additionalInfo);
             } else {
                 $additionalInfo = null;
             }
 
             $newAdditionalInfo = json_decode($additionalInfo, true);
-
+            
             $request->validate([
                 'brand' => 'required',
                 'product_name' => 'required',
@@ -91,7 +91,7 @@ class ProductController extends Controller
                 'item_image' => 'required|image|mimes:jpeg,png,jpg,gif,svg,heic|max:2048',
                 'storage_type' => 'required',
                 'packaging' => 'required',
-                'additional_info' => 'nullable',
+                'additional_info' => 'nullable'
             ]);
 
             if($request->hasFile('item_image')) {
@@ -115,20 +115,10 @@ class ProductController extends Controller
                 'company_whatsapp_number' => $request->company_whatsapp_number,
                 'address' => $request->address,
                 'item_image' => $filename,
-
                 'storage_type' => $request->storage_type,
                 'packaging' => $request->packaging,
-                'additional_info' => $newAdditionalInfo,
+                'additional_info' => $newAdditionalInfo
             ]);
-
-            // Membuat direktori jika belum ada
-            $imageDirectory = public_path('product_images');
-            if (!file_exists($imageDirectory)) {
-                mkdir($imageDirectory, 0777, true);
-            }
-
-            // Upload gambar
-            $request->file('item_image')->storeAs('public/product_images', $imageName);
 
             return response()->json([
                 'status' => 'success',
@@ -141,6 +131,7 @@ class ProductController extends Controller
             ], 500);
         }
     }
+
 
     public function update(Request $request, $id)
     {
@@ -201,50 +192,6 @@ class ProductController extends Controller
                 'message' => $error->getMessage()
             ], 500);
         }
-        $product = Product::find($id);
-
-        if (!$product) {
-            return response()->json(['message' => 'Product not found'], 404);
-        }
-
-        $request->validate([
-            'brand' => 'nullable',
-            'product_name' => 'nullable',
-            'price' => 'nullable',
-            'stock' => 'nullable',
-            'volume' => 'nullable',
-            'category_id' => 'nullable',
-            'description' => 'nullable',
-            'province_id' => 'nullable',
-            'city_id' => 'nullable',
-            'company_name' => 'nullable',
-            'company_category' => 'nullable',
-            'company_whatsapp_number' => 'nullable',
-            'address' => 'nullable',
-            'item_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,heic|max:2048',
-            'storage_type' => 'nullable',
-            'packaging' => 'nullable',
-            'additional_info' => 'nullable',
-        ]);
-
-        // Simpan item_image lama untuk referensi
-        $oldItemImage = $product->item_image;
-
-        // Update produk dengan parameter yang diberikan
-        $product->update($request->all());
-
-        // Handle item image update if provided
-        if ($request->hasFile('item_image')) {
-            // Delete the old image
-            Storage::delete('public/product_images/' . $oldItemImage);
-
-            // Upload and update with the new image
-            $imageName = uniqid('product_') . '.' . $request->file('item_image')->getClientOriginalExtension();
-            $request->file('item_image')->storeAs('public/product_images', $imageName);
-            $product->update(['item_image' => $imageName]);
-        }
-
-        return response()->json($product, 200);
     }
 
     public function destroy($id)
@@ -269,10 +216,10 @@ class ProductController extends Controller
             ], 500);
         }
     }
+
     private function getImageUrl($imageName)
     {
         $baseUrl = config('app.url');
         return "{$baseUrl}/api/images/supplier/{$imageName}";
-
     }
 }
