@@ -9,7 +9,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class SupplierMail extends Mailable
+class AdminMail extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -27,7 +27,7 @@ class SupplierMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Your product has been added to our website!',
+            subject: 'Admin Mail',
         );
     }
 
@@ -37,13 +37,8 @@ class SupplierMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'supplier-mail',
+            view: 'admin-mail',
         );
-    }
-
-    public function build() {
-        return $this->markdown('supplier-mail')
-            ->subject('Your product has been added to our website!');
     }
 
     /**

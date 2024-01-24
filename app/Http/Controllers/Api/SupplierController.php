@@ -7,14 +7,25 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use App\Models\Supplier;
 use App\Http\Controllers\Api\NotificationController;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Facades\Mail;
 use Mockery\Matcher\Not;
 
 class SupplierController extends Controller
 {
-    public function get() {
+    public function get(Request $request) {
         try {
-            $supplier = Supplier::get();
-            
+            $query = $request->query('company_name');
+
+            $supplier = null;
+
+            if ($query) {
+                $supplier = Supplier::where('company_name', 'LIKE', "%{$query}%")->orderBy('created_at', 'DESC')
+                                    ->paginate(10);
+            } else {
+                $supplier = Supplier::orderBy('created_at', 'DESC')->paginate(10);
+            }            
+
             return response()->json([
                 'status' => 'success',
                 'data' => $supplier
@@ -72,9 +83,7 @@ class SupplierController extends Controller
                 $data['item_image'] = $filename;
             }
 
-            $notifController = new NotificationController();
-            $notifController->emailNotification();
-            $supplier = Supplier::create($data);
+            event(new Registered($supplier = Supplier::create($data)));
 
             return response()->json([
                 'status' => 'success',
@@ -147,6 +156,10 @@ class SupplierController extends Controller
 
             $product = Product::create($data);
 
+            if($product) {
+                Mail::to($request->company_email)->send(new \App\Mail\SupplierMail());
+            }
+
             return response()->json([
                 'status' => 'success',
                 'data' => $product
@@ -157,5 +170,10 @@ class SupplierController extends Controller
                 'message' => $error->getMessage()
             ]);
         }
+    }
+
+    private function getImageUrl($imageName) {
+        $baseUrl = config('app.url');
+        return url("{$baseUrl}/api/images/products/{$imageName}");
     }
 }

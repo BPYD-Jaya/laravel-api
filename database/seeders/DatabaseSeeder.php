@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\About;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
@@ -43,7 +44,16 @@ class UserSeeder extends Seeder
                 'remember_token' => Str::random(10),
             ]);
 
-            echo 'Seeding successful: User created' . PHP_EOL;
+            About::create([
+                'address' => 'Komplek Ruko Transmart Unit Ruko 8-H, Jl. Raya Kalimalang No. 1, Kel. Pondok Kelapa, Kec. Duren Sawit, Jakarta Timur 13450',
+                'phone_company' => '085710116209',
+                'email_company' => 'wpihub@gmail.com',
+                'ig_link' => 'https://www.instagram.com/wpindonesia_official/',
+                'fb_link' => 'https://www.facebook.com/WPIndonesiaOfficial',
+                'wa_link' => 'https://wa.me/6285710116209'
+            ]);
+
+            echo 'Seeding successful: Seeders created' . PHP_EOL;
         } catch (\Exception $e) {
             echo 'Seeding failed: ' . $e->getMessage() . PHP_EOL;
         }

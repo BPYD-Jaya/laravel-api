@@ -3,62 +3,66 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\About;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use Illuminate\Support\Facades\Storage;
-
 
 class ProductController extends Controller
 {
     public function index()
     {
-        $products = Product::get();
-        
-        return response()->json($products);
+        try {
+            $products = Product::paginate(10);
+            $waLink = About::pluck('wa_link')->first();
+
+            
+            foreach($products as $product) {
+                $product->link_image = $this->getImageUrl($product->item_image);
+                $text = "Halo,+saya+ingin+membeli+produk+". $product->brand . ".+Apakah+masih+tersedia?";
+                $product->wa_link = $waLink . "?text=" . $text;
+            }
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $products
+            ], 200);
+        } catch(\Exception $error) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $error->getMessage()
+            ], 500);
+        }
     }
 
     public function show($id)
     {
-        $product = Product::find($id);
+        try {
+            $product = Product::find($id);
+            $waLink = About::pluck('wa_link')->first();
 
-        if (!$product) {
-            return response()->json(['message' => 'Product not found'], 404);
+            if (!$product) {
+                return response()->json(['message' => 'Product not found'], 404);
+            }
+            
+            $product->link_image = $this->getImageUrl($product->item_image);
+            $text = "Halo,+saya+ingin+membeli+produk+". $product->brand . ".+Apakah+masih+tersedia?";
+            $product->wa_link = $waLink . "?text=" . $text;
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $product,
+            ], 200);
+        } catch(\Exception $error) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $error->getMessage()
+            ], 500);
         }
-
-        return response()->json($product);
     }
 
     public function store(Request $request)
     {
-        // $request->validate([
-        //     'name' => 'nullable',
-        //     'price' => 'required',
-        //     'stock' => 'required',
-        //     'unit' => 'required',
-        //     'item_image' => 'required|image|mimes:jpeg,png,jpg,gif,svg,heic|max:2048',
-        //     'description' => 'nullable',
-        //     'category_id' => 'required|exists:categories,id',
-        //     'province_id' => 'required|exists:provinces,id',
-        //     'city_id' => 'required|exists:cities,id',
-        // ]);
-    
-        // $imageName = uniqid('product_') . '.' . $request->file('item_image')->getClientOriginalExtension();
-    
-        // $product = Product::create([
-        //     'name' => $request->input('name'),
-        //     'price' => $request->input('price'),
-        //     'stock' => $request->input('stock'),
-        //     'unit' => $request->input('unit'),
-        //     'item_image' => $imageName,
-        //     'description' => $request->input('description'),
-        //     'category_id' => $request->input('category_id'),
-        //     'province_id' => $request->input('province_id'),
-        //     'city_id' => $request->input('city_id'),
-        // ]);
-    
-        // $request->file('item_image')->storeAs('public/product_images', $imageName);
-    
-        // return response()->json($product, 201);
         try {
             $additionalInfo = $request->input('additional_info', []);
 
@@ -84,13 +88,17 @@ class ProductController extends Controller
                 'company_category' => 'required',
                 'company_whatsapp_number' => 'required',
                 'address' => 'required',
-                'item_image' => 'required',
+                'item_image' => 'required|image|mimes:jpeg,png,jpg,gif,svg,heic|max:2048',
                 'storage_type' => 'required',
                 'packaging' => 'required',
                 'additional_info' => 'nullable'
             ]);
 
-            // dd($data);
+            if($request->hasFile('item_image')) {
+                $file = $request->file('item_image');
+                $filename = 'product-'.time() . '.' . $file->getClientOriginalExtension();
+                $file->storeAs('public/images/products/', $filename);
+            }
 
             $product = Product::create([
                 'brand' => $request->brand,
@@ -106,7 +114,7 @@ class ProductController extends Controller
                 'company_category' => $request->company_category,
                 'company_whatsapp_number' => $request->company_whatsapp_number,
                 'address' => $request->address,
-                'item_image' => $request->item_image,
+                'item_image' => $filename,
                 'storage_type' => $request->storage_type,
                 'packaging' => $request->packaging,
                 'additional_info' => $newAdditionalInfo
@@ -114,73 +122,104 @@ class ProductController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'data' => $product
-            ]);
+                'data' => $product,
+            ], 201);
         } catch(\Exception $error) {
             return response()->json([
                 'status' => 'error',
                 'message' => $error->getMessage()
-            ]);
+            ], 500);
         }
     }
 
 
     public function update(Request $request, $id)
     {
-        $product = Product::find($id);
+        try {
+            // Retrieve the existing product
+            $product = Product::findOrFail($id);
     
-        if (!$product) {
-            return response()->json(['message' => 'Product not found'], 404);
+            // Your existing code to handle additional_info
+            $additionalInfo = $request->input('additional_info', []);
+    
+            if (count($additionalInfo) > 0) {
+                $additionalInfo = json_encode($additionalInfo);
+            } else {
+                $additionalInfo = null;
+            }
+    
+            $newAdditionalInfo = json_decode($additionalInfo, true);
+    
+            // Your existing validation rules
+            $request->validate([
+                'brand' => 'nullable',
+                'product_name' => 'nullable',
+                'price' => 'nullable',
+                'stock' => 'nullable',
+                'volume' => 'nullable',
+                'category_id' => 'nullable',
+                'description' => 'nullable',
+                'province_id' => 'nullable',
+                'city_id' => 'nullable',
+                'company_name' => 'nullable',
+                'company_category' => 'nullable',
+                'company_whatsapp_number' => 'nullable',
+                'address' => 'nullable',
+                'item_image' => 'nullable',
+                'storage_type' => 'nullable',
+                'packaging' => 'nullable',
+                'additional_info' => 'nullable'
+            ]);
+    
+            $oldImage = $product->item_image;
+            
+            if($request->hasFile('item_image')) {
+                Storage::delete('public/images/products/' . $oldImage);
+                $file = $request->file('item_image');
+                $filename = 'product-'.time() . '.' . $file->getClientOriginalExtension();
+                $file->storeAs('public/images/products/', $filename);
+                $product->update($request->all());
+                $product->update(['item_image' => $filename]);
+            }
+            
+            return response()->json([
+                'status' => 'success',
+                'data' => $product
+            ], 200);
+        } catch (\Exception $error) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $error->getMessage()
+            ], 500);
         }
-    
-        $request->validate([
-            'name' => 'nullable',
-            'price' => 'required',
-            'stock' => 'required',
-            'unit' => 'required',
-            'item_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,heic|max:2048',
-            'description' => 'nullable',
-            'category_id' => 'required|exists:categories,id',
-            'province_id' => 'required|exists:provinces,id',
-            'city_id' => 'required|exists:cities,id',
-        ]);
-    
-        // Simpan item_image lama untuk referensi
-        $oldItemImage = $product->item_image;
-    
-        // Update produk dengan parameter yang diberikan
-        $product->update($request->only([
-            'name', 'price', 'stock', 'unit', 'description',
-            'category_id', 'province_id', 'city_id',
-        ]));
-    
-        // Handle item image update if provided
-        if ($request->hasFile('item_image')) {
-            // Delete the old image
-            Storage::delete('public/product_images/' . $oldItemImage);
-    
-            // Upload and update with the new image
-            $imageName = uniqid('product_') . '.' . $request->file('item_image')->getClientOriginalExtension();
-            $request->file('item_image')->storeAs('public/product_images', $imageName);
-            $product->update(['item_image' => $imageName]);
-        }
-    
-        return response()->json($product, 200);
     }
 
     public function destroy($id)
     {
-        $product = Product::find($id);
-
-        if (!$product) {
-            return response()->json(['message' => 'Product not found'], 404);
+        try {
+            $product = Product::find($id);
+    
+            if (!$product) {
+                return response()->json(['message' => 'Product not found'], 404);
+            }
+    
+            // Delete product image
+            Storage::delete('product_images/' . $product->item_image);
+    
+            $product->delete();
+    
+            return response()->json(['message' => 'Product deleted'], 200);
+        } catch (\Exception $error) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $error->getMessage()
+            ], 500);
         }
+    }
 
-        // Delete product image
-        Storage::delete('product_images/' . $product->item_image);
-
-        $product->delete();
-
-        return response()->json(['message' => 'Product deleted'], 200);
+    private function getImageUrl($imageName)
+    {
+        $baseUrl = config('app.url');
+        return "{$baseUrl}/api/images/supplier/{$imageName}";
     }
 }

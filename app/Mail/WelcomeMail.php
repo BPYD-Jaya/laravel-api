@@ -42,6 +42,10 @@ class WelcomeMail extends Mailable
         );
     }
 
+    public function build() {
+        return $this->markdown('welcome-mail');
+    }
+
     /**
      * Get the attachments for the message.
      *

@@ -33,19 +33,18 @@ class NotificationController extends Controller
 
     public function emailNotification() {
         try {
-            $userEmail = User::pluck('email')->toArray();
-    
-            foreach($userEmail as $email) {
-                Notification::send($email, new AdminNotification());
+            $notifications = auth()->user()->unreadNotifications;
+            foreach($notifications as $notification) {
+                $notification->time = $notification->created_at->diffForHumans();
             }
-    
+
             return response()->json([
-                'message' => 'Email sent successfully',
-                'data' => $userEmail
+                'message' => 'Notification sent successfully',
+                'notif' => $notifications
             ], 200);
         } catch (\Exception $error) {
             return response()->json([
-                'message' => 'Email failed to send',
+                'message' => 'Error fetching notification',
                 'data' => $error->getMessage()
             ], 400);
         }
