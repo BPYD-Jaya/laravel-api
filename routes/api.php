@@ -21,7 +21,7 @@ Route::apiResource('products', ProductController::class);
 
 
 Route::prefix("/about")->group(function () {
-    Route::get("/", [App\Http\Controllers\Api\AboutController::class, 'get']);
+    Route::get("/{id}", [App\Http\Controllers\Api\AboutController::class, 'get']);
     Route::post("/", [App\Http\Controllers\Api\AboutController::class, 'create'])->middleware('auth:sanctum');
     Route::put("/{id}", [App\Http\Controllers\Api\AboutController::class, 'update'])->middleware('auth:sanctum');
 });

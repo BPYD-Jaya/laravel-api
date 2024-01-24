@@ -6,11 +6,13 @@ namespace App\Http\Controllers\Api;
 
 use App\Models\Blog;
 use App\Http\Controllers\Controller;
+use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class BlogController extends Controller
 {
@@ -68,6 +70,11 @@ class BlogController extends Controller
                 'writer' => $request->input('writer'),
             ]);
 
+            $customer = Customer::all()->pluck('email');
+
+            foreach($customer as $email){
+                Mail::to($email)->send(new \App\Mail\LatestNews($request->input('title'), $request->input('content')));
+            }
             DB::commit();
 
             return response()->json(['blog' => $blog, 'message' => 'Blog created successfully'], 201);

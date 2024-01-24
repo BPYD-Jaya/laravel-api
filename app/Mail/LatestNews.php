@@ -12,13 +12,15 @@ use Illuminate\Queue\SerializesModels;
 class LatestNews extends Mailable
 {
     use Queueable, SerializesModels;
-
+    private $content;
+    private $title;
     /**
      * Create a new message instance.
      */
-    public function __construct()
+    public function __construct($title, $content)
     {
-        //
+        $this->title = $title;
+        $this->content = $content;
     }
 
     /**
@@ -37,8 +39,17 @@ class LatestNews extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'view.latest-news',
+            view: 'latest-news',
         );
+    }
+
+    public function build() {
+        return $this->markdown('latest-news')
+            ->subject('Latest News')
+            ->with([
+                'title' => $this->title,
+                'content' => $this->content
+            ]);
     }
 
     /**

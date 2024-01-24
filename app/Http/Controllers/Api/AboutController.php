@@ -23,6 +23,21 @@ class AboutController extends Controller
         }
     }
 
+    public function specific($id){
+        try{
+            $about = About::find($id);
+            return response()->json([
+                'status' => 'success',
+                'data' => $about
+            ], 200);
+        } catch (\Exception $error) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $error->getMessage()
+            ], 500);
+        }
+    }
+
     public function create(Request $request){
         try{
             $about = About::create($request->all());

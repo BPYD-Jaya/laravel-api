@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 use App\Models\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
@@ -139,61 +140,73 @@ class UserController extends Controller
                 ->unionAll(function ($query) {
                     $query->select(DB::raw("'Jan' AS kolom"), DB::raw('COUNT(*) AS VALUE'))
                         ->from('suppliers')
+                        ->whereYear('created_at', Date::now()->year)
                         ->whereMonth('created_at', 1);
                 })
                 ->unionAll(function ($query) {
                     $query->select(DB::raw("'Feb' AS kolom"), DB::raw('COUNT(*) AS VALUE'))
                         ->from('suppliers')
+                        ->whereYear('created_at', Date::now()->year)
                         ->whereMonth('created_at', 2);
                 })
                 ->unionAll(function ($query) {
                     $query->select(DB::raw("'Mar' AS kolom"), DB::raw('COUNT(*) AS VALUE'))
                         ->from('suppliers')
+                        ->whereYear('created_at', Date::now()->year)
                         ->whereMonth('created_at', 3);
                 })
                 ->unionAll(function ($query) {
                     $query->select(DB::raw("'Apr' AS kolom"), DB::raw('COUNT(*) AS VALUE'))
                         ->from('suppliers')
+                        ->whereYear('created_at', Date::now()->year)
                         ->whereMonth('created_at', 4);
                 })
                 ->unionAll(function ($query) {
                     $query->select(DB::raw("'May' AS kolom"), DB::raw('COUNT(*) AS VALUE'))
                         ->from('suppliers')
+                        ->whereYear('created_at', Date::now()->year)
                         ->whereMonth('created_at', 5);
                 })
                 ->unionAll(function ($query) {
                     $query->select(DB::raw("'Jun' AS kolom"), DB::raw('COUNT(*) AS VALUE'))
                         ->from('suppliers')
+                        ->whereYear('created_at', Date::now()->year)
                         ->whereMonth('created_at', 6);
                 })
                 ->unionAll(function ($query) {
                     $query->select(DB::raw("'Jul' AS kolom"), DB::raw('COUNT(*) AS VALUE'))
                         ->from('suppliers')
+                        ->whereYear('created_at', Date::now()->year)
                         ->whereMonth('created_at', 7);
                 })
                 ->unionAll(function ($query) {
                     $query->select(DB::raw("'Aug' AS kolom"), DB::raw('COUNT(*) AS VALUE'))
                         ->from('suppliers')
+                        ->whereYear('created_at', Date::now()->year)
                         ->whereMonth('created_at', 8);
                 })
                 ->unionAll(function ($query) {
                     $query->select(DB::raw("'Sep' AS kolom"), DB::raw('COUNT(*) AS VALUE'))
                         ->from('suppliers')
+                        ->whereYear('created_at', Date::now()->year)
                         ->whereMonth('created_at', 9);
                 })
                 ->unionAll(function ($query) {
                     $query->select(DB::raw("'Oct' AS kolom"), DB::raw('COUNT(*) AS VALUE'))
                         ->from('suppliers')
+                        ->whereYear('created_at', Date::now()->year)
                         ->whereMonth('created_at', 10);
                 })
                 ->unionAll(function ($query) {
                     $query->select(DB::raw("'Nov' AS kolom"), DB::raw('COUNT(*) AS VALUE'))
                         ->from('suppliers')
+                        ->whereYear('created_at', Date::now()->year)
                         ->whereMonth('created_at', 11);
                 })
                 ->unionAll(function ($query) {
                     $query->select(DB::raw("'Dec' AS kolom"), DB::raw('COUNT(*) AS VALUE'))
                         ->from('suppliers')
+                        ->whereYear('created_at', Date::now()->year)
                         ->whereMonth('created_at', 12);
                 })
                 ->get();

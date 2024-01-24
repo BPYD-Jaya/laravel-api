@@ -41,6 +41,11 @@ class SupplierMail extends Mailable
         );
     }
 
+    public function build() {
+        return $this->markdown('supplier-mail')
+            ->subject('Your product has been added to our website!');
+    }
+
     /**
      * Get the attachments for the message.
      *

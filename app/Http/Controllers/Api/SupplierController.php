@@ -13,10 +13,19 @@ use Mockery\Matcher\Not;
 
 class SupplierController extends Controller
 {
-    public function get() {
+    public function get(Request $request) {
         try {
-            $supplier = Supplier::orderBy('created_at', 'DESC')->paginate(10);
-            
+            $query = $request->query('company_name');
+
+            $supplier = null;
+
+            if ($query) {
+                $supplier = Supplier::where('company_name', 'LIKE', "%{$query}%")->orderBy('created_at', 'DESC')
+                                    ->paginate(10);
+            } else {
+                $supplier = Supplier::orderBy('created_at', 'DESC')->paginate(10);
+            }            
+
             return response()->json([
                 'status' => 'success',
                 'data' => $supplier
@@ -148,7 +157,7 @@ class SupplierController extends Controller
             $product = Product::create($data);
 
             if($product) {
-                Mail::to($request->company_email)->send(new \App\Mail\SupplierMail($data));
+                Mail::to($request->company_email)->send(new \App\Mail\SupplierMail());
             }
 
             return response()->json([

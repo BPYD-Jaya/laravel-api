@@ -34,10 +34,13 @@ class NotificationController extends Controller
     public function emailNotification() {
         try {
             $notifications = auth()->user()->unreadNotifications;
+            foreach($notifications as $notification) {
+                $notification->time = $notification->created_at->diffForHumans();
+            }
 
             return response()->json([
                 'message' => 'Notification sent successfully',
-                'data' => $notifications
+                'notif' => $notifications
             ], 200);
         } catch (\Exception $error) {
             return response()->json([
