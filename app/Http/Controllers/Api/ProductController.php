@@ -18,39 +18,49 @@ class ProductController extends Controller
             $city_id = $request->query('city_id');
             $province_id = $request->query('province_id');
             $search = $request->query('search');
-
+            $min_price = $request->query('min_price');
+            $max_price = $request->query('max_price');
+    
             $productsQuery = Product::query();
-
+    
             if ($category_id) {
                 $productsQuery->where('category_id', $category_id);
             }
-
+    
             if ($city_id) {
                 $productsQuery->where('city_id', $city_id);
             }
-
+    
             if ($province_id) {
                 $productsQuery->where('province_id', $province_id);
             }
-
+    
             if ($search) {
                 $productsQuery->where(function ($query) use ($search) {
                     $query->where('brand', 'like', '%' . $search . '%')
                         ->orWhere('product_name', 'like', '%' . $search . '%');
-                    // You can extend this to include other fields in your search
                 });
             }
-
+    
+            // Apply min and max price filters
+            if ($min_price !== null) {
+                $productsQuery->where('price', '>=', $min_price);
+            }
+    
+            if ($max_price !== null) {
+                $productsQuery->where('price', '<=', $max_price);
+            }
+    
             $products = $productsQuery->paginate($perPage);
-
+    
             $waLink = About::pluck('wa_link')->first();
-
+    
             foreach ($products as $product) {
                 $product->link_image = $this->getImageUrl($product->item_image);
                 $text = "Halo,+saya+ingin+membeli+produk+" . $product->brand . ".+Apakah+masih+tersedia?";
                 $product->wa_link = $waLink . "?text=" . $text;
             }
-
+    
             return response()->json([
                 'status' => 'success',
                 'data' => $products
@@ -62,6 +72,7 @@ class ProductController extends Controller
             ], 500);
         }
     }
+    
 
 
     public function show($id)
