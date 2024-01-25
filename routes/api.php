@@ -129,6 +129,7 @@ Route::get('/images/category/{imageName}', function ($imageName) {
     }
 });
 
+
 Route::get('/images/blog/{imageName}', function ($imageName) {
     $imagePath = public_path('images/blog/' . $imageName);
 
