@@ -9,7 +9,6 @@ use App\Models\Supplier;
 use App\Http\Controllers\Api\NotificationController;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Mail;
-use Mockery\Matcher\Not;
 
 class SupplierController extends Controller
 {
@@ -20,10 +19,60 @@ class SupplierController extends Controller
             $supplier = null;
 
             if ($query) {
-                $supplier = Supplier::where('company_name', 'LIKE', "%{$query}%")->orderBy('created_at', 'DESC')
-                                    ->paginate(10);
+                $supplier = Supplier::select(
+                                'suppliers.id',
+                                'suppliers.name',
+                                'suppliers.company_name',
+                                'suppliers.company_whatsapp_number',
+                                'suppliers.company_email',
+                                'suppliers.company_category',
+                                'suppliers.stock',
+                                'suppliers.price',
+                                'suppliers.volume',
+                                'suppliers.address',
+                                'suppliers.item_image',
+                                'suppliers.description',
+                                'cities.city',
+                                'provinces.province',
+                                'categories.category',
+                                'suppliers.created_at',
+                                'suppliers.category_id',
+                                'suppliers.province_id',
+                                'suppliers.city_id'
+                            )
+                            ->leftJoin('cities', 'suppliers.city_id', '=', 'cities.id')
+                            ->leftJoin('provinces', 'suppliers.province_id', '=', 'provinces.id')
+                            ->leftJoin('categories', 'suppliers.category_id', '=', 'categories.id')
+                            ->where('company_name', 'LIKE', "%{$query}%")
+                            ->orderBy('suppliers.created_at', 'desc')
+                            ->paginate(10);
             } else {
-                $supplier = Supplier::orderBy('created_at', 'DESC')->paginate(10);
+                $supplier = Supplier::select(
+                                'suppliers.id',
+                                'suppliers.name',
+                                'suppliers.company_name',
+                                'suppliers.company_whatsapp_number',
+                                'suppliers.company_email',
+                                'suppliers.company_category',
+                                'suppliers.stock',
+                                'suppliers.price',
+                                'suppliers.volume',
+                                'suppliers.address',
+                                'suppliers.item_image',
+                                'suppliers.description',
+                                'cities.city',
+                                'provinces.province',
+                                'categories.category',
+                                'suppliers.created_at',
+                                'suppliers.category_id',
+                                'suppliers.province_id',
+                                'suppliers.city_id'
+                            )
+                            ->leftJoin('cities', 'suppliers.city_id', '=', 'cities.id')
+                            ->leftJoin('provinces', 'suppliers.province_id', '=', 'provinces.id')
+                            ->leftJoin('categories', 'suppliers.category_id', '=', 'categories.id')
+                            ->orderBy('suppliers.created_at', 'desc')
+                            ->paginate(10);
             }            
 
             return response()->json([
@@ -40,7 +89,32 @@ class SupplierController extends Controller
 
     public function getById ($id) {
         try {
-            $supplier = Supplier::find($id);
+            $supplier = Supplier::select(
+                'suppliers.id',
+                'suppliers.name',
+                'suppliers.company_name',
+                'suppliers.company_whatsapp_number',
+                'suppliers.company_email',
+                'suppliers.company_category',
+                'suppliers.stock',
+                'suppliers.price',
+                'suppliers.volume',
+                'suppliers.address',
+                'suppliers.item_image',
+                'suppliers.description',
+                'cities.city',
+                'provinces.province',
+                'categories.category',
+                'suppliers.created_at',
+                'suppliers.category_id',
+                'suppliers.province_id',
+                'suppliers.city_id'
+            )
+            ->leftJoin('cities', 'suppliers.city_id', '=', 'cities.id')
+            ->leftJoin('provinces', 'suppliers.province_id', '=', 'provinces.id')
+            ->leftJoin('categories', 'suppliers.category_id', '=', 'categories.id')
+            ->where('suppliers.id', $id)
+            ->get();
             
             return response()->json([
                 'status' => 'success',
