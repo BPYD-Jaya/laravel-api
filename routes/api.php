@@ -121,19 +121,19 @@ Route::get('/images/product/{imageName}', [SymlinkController::class, 'productIma
 
 Route::get('/images/supplier/{imageName}', [SymlinkController::class, 'supplierImage']);
 
-Route::get('/images/blog/{imageName}', function ($imageName) {
-    $imagePath = public_path('images/blog/' . $imageName);
+// Route::get('/images/blog/{imageName}', function ($imageName) {
+//     $imagePath = public_path('images/blog/' . $imageName);
 
-    if (File::exists($imagePath)) {
-        $file = File::get($imagePath);
-        $type = File::mimeType($imagePath);
+//     if (File::exists($imagePath)) {
+//         $file = File::get($imagePath);
+//         $type = File::mimeType($imagePath);
 
-        $response = Response::make($file, 200);
-        $response->header("Content-Type", $type);
+//         $response = Response::make($file, 200);
+//         $response->header("Content-Type", $type);
 
-        return $response;
-    } else {
-        // Handle file not found
-        return response()->json(['error' => 'Image not found'], 404);
-    }
-});
+//         return $response;
+//     } else {
+//         // Handle file not found
+//         return response()->json(['error' => 'Image not found'], 404);
+//     }
+// });

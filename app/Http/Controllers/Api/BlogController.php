@@ -197,8 +197,7 @@ class BlogController extends Controller
      */
     private function getImageUrl($imageName)
     {
-        $baseUrl = config('app.url');
-        return "{$baseUrl}/images/blog/{$imageName}";
+        return asset("storage/images/blog/{$imageName}");
     }
 
     /**
