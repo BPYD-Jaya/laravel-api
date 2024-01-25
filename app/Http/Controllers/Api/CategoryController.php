@@ -13,7 +13,7 @@ class CategoryController extends Controller
     {
         $categories = Category::all();
 
-        // Add symlink for each category image
+        // Tambahkan symlink untuk setiap gambar kategori
         $categories = $categories->map(function ($category) {
             $category['image_url'] = $this->getImageUrl($category->category_image);
             return $category;
@@ -30,7 +30,7 @@ class CategoryController extends Controller
             return response()->json(['message' => 'Category not found'], 404);
         }
 
-        // Add symlink for the category image
+        // Tambahkan symlink untuk gambar kategori
         $category['image_url'] = $this->getImageUrl($category->category_image);
 
         return response()->json($category);
@@ -43,63 +43,61 @@ class CategoryController extends Controller
             'category_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,heic|max:2048',
         ]);
 
-        $category = Category::create($request->all());
+        try {
+            $category = Category::create($request->all());
 
-        // Handle category image upload if provided
-        if ($request->hasFile('category_image')) {
-            $this->uploadImage($request, $category);
+            // Handle upload gambar kategori jika diberikan
+            if ($request->hasFile('category_image')) {
+                $this->uploadImage($request, $category);
+            }
+
+            return response()->json([
+                'category' => $category,
+                'message' => 'Category created successfully',
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 500);
         }
-
-        return response()->json($category, 201);
     }
 
     public function update(Request $request, $id)
     {
         try {
             $category = Category::find($id);
-    
+
             if (!$category) {
                 return response()->json(['message' => 'Category not found'], 404);
             }
-    
+
+            $request->validate([
+                'category' => 'nullable',
+                'category_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,heic|max:2048',
+            ]);
+
             $updateDetails = [];
-    
-            // Update 'category' field if provided
-            if ($request->has('category')) {
+
+            // Perbarui field 'category' jika diberikan
+            if ($request->filled('category')) {
                 $updateDetails['category'] = $request->category;
             }
-            echo $request->input('category');
-    
-// Update category image if provided
-if ($request->hasFile('category_image')) {
-    // Delete old image if it exists
-    if ($category->category_image) {
-        Storage::delete('category_images/' . $category->category_image);
-    }
 
-    // Upload new image
-    $imageName = 'category_' . $category->id . '.' . $request->file('category_image')->getClientOriginalExtension();
-    $request->file('category_image')->move(public_path('category_images'), $imageName);
-    $updateDetails['category_image'] = $imageName;
-} elseif ($request->has('category_image')) {
-    // Update category image if it is not provided as a file
-    // Delete old image if it exists
-    if ($category->category_image) {
-        Storage::delete('category_images/' . $category->category_image);
-    }
-    $updateDetails['category_image'] = $request->input('category_image');
-}
+            // Perbarui gambar kategori jika diberikan
+            if ($request->hasFile('category_image')) {
+                $this->uploadImage($request, $category);
+            }
 
-    
             if (!empty($updateDetails)) {
                 $category->update($updateDetails);
             }
-    
-            // Fetch the updated category data
+
+            // Ambil data kategori yang diperbarui
             $updatedCategory = Category::find($id);
-    
+
             return response()->json([
-                'category' => $category,
+                'category' => $updatedCategory,
                 'message' => 'Category updated successfully',
             ]);
         } catch (\Exception $e) {
@@ -109,35 +107,37 @@ if ($request->hasFile('category_image')) {
             ], 500);
         }
     }
-    
-
 
     public function destroy($id)
     {
         $category = Category::find($id);
-
+    
         if (!$category) {
             return response()->json(['message' => 'Category not found'], 404);
         }
-
-        // Delete category image
-        Storage::delete('category_images/' . $category->category_image);
-
+    
+        // Hapus gambar kategori
+        Storage::delete('public/images/category_images/' . $category->category_image);
+    
         $category->delete();
-
+    
         return response()->json(['message' => 'Category deleted'], 200);
     }
 
     private function getImageUrl($imageName)
     {
-        return url("category_images/{$imageName}");
+        return asset ("/storage/images/category_images/{$imageName}");
     }
 
     private function uploadImage(Request $request, Category $category)
     {
         $image = $request->file('category_image');
         $imageName = 'category_' . $category->id . '.' . $image->getClientOriginalExtension();
-        $image->move(public_path('category_images'), $imageName);
-        $category->update(['category_image' => $imageName]);
+
+        // Simpan gambar ke dalam folder storage terlebih dahulu
+        $path = $image->storeAs('public/images/category_images', $imageName);
+
+        // Update nama gambar ke database
+        $category->update(['category_image' => basename($path)]);
     }
 }

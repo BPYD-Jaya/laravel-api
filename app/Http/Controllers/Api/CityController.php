@@ -4,13 +4,22 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\City;
+use App\Models\Province;
 use Illuminate\Http\Request;
 
 class CityController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $cities = City::all();
+        // Pagination
+        $perPage = $request->input('per_page', 10);
+
+        // Filter by province_id
+        $provinceId = $request->input('province_id');
+        $cities = City::when($provinceId, function ($query) use ($provinceId) {
+            return $query->where('province_id', $provinceId);
+        })->paginate($perPage);
+
         return response()->json($cities);
     }
 

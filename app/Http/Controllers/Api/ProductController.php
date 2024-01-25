@@ -10,31 +10,6 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
-    // public function index()
-    // {
-    //     try {
-    //         $products = Product::paginate(10);
-    //         $waLink = About::pluck('wa_link')->first();
-
-            
-    //         foreach($products as $product) {
-    //             $product->link_image = $this->getImageUrl($product->item_image);
-    //             $text = "Halo,+saya+ingin+membeli+produk+". $product->brand . ".+Apakah+masih+tersedia?";
-    //             $product->wa_link = $waLink . "?text=" . $text;
-    //         }
-
-    //         return response()->json([
-    //             'status' => 'success',
-    //             'data' => $products
-    //         ], 200);
-    //     } catch(\Exception $error) {
-    //         return response()->json([
-    //             'status' => 'error',
-    //             'message' => $error->getMessage()
-    //         ], 500);
-    //     }
-    // }
-
     public function index(Request $request)
     {
         try {
@@ -274,7 +249,7 @@ class ProductController extends Controller
 
     private function getImageUrl($imageName)
     {
-        $baseUrl = config('app.url');
-        return "{$baseUrl}/storage/images/products/{$imageName}";
+        return asset("storage/images/products/{$imageName}");
     }
 }
+
