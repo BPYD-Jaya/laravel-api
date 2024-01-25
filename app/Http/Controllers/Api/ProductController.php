@@ -10,16 +10,69 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
-    public function index()
-    {
-        try {
-            $products = Product::paginate(10);
-            $waLink = About::pluck('wa_link')->first();
+    // public function index()
+    // {
+    //     try {
+    //         $products = Product::paginate(10);
+    //         $waLink = About::pluck('wa_link')->first();
 
             
-            foreach($products as $product) {
+    //         foreach($products as $product) {
+    //             $product->link_image = $this->getImageUrl($product->item_image);
+    //             $text = "Halo,+saya+ingin+membeli+produk+". $product->brand . ".+Apakah+masih+tersedia?";
+    //             $product->wa_link = $waLink . "?text=" . $text;
+    //         }
+
+    //         return response()->json([
+    //             'status' => 'success',
+    //             'data' => $products
+    //         ], 200);
+    //     } catch(\Exception $error) {
+    //         return response()->json([
+    //             'status' => 'error',
+    //             'message' => $error->getMessage()
+    //         ], 500);
+    //     }
+    // }
+
+    public function index(Request $request)
+    {
+        try {
+            $perPage = $request->query('per_page', 10);
+            $category_id = $request->query('category_id');
+            $city_id = $request->query('city_id');
+            $province_id = $request->query('province_id');
+            $search = $request->query('search');
+
+            $productsQuery = Product::query();
+
+            if ($category_id) {
+                $productsQuery->where('category_id', $category_id);
+            }
+
+            if ($city_id) {
+                $productsQuery->where('city_id', $city_id);
+            }
+
+            if ($province_id) {
+                $productsQuery->where('province_id', $province_id);
+            }
+
+            if ($search) {
+                $productsQuery->where(function ($query) use ($search) {
+                    $query->where('brand', 'like', '%' . $search . '%')
+                        ->orWhere('product_name', 'like', '%' . $search . '%');
+                    // You can extend this to include other fields in your search
+                });
+            }
+
+            $products = $productsQuery->paginate($perPage);
+
+            $waLink = About::pluck('wa_link')->first();
+
+            foreach ($products as $product) {
                 $product->link_image = $this->getImageUrl($product->item_image);
-                $text = "Halo,+saya+ingin+membeli+produk+". $product->brand . ".+Apakah+masih+tersedia?";
+                $text = "Halo,+saya+ingin+membeli+produk+" . $product->brand . ".+Apakah+masih+tersedia?";
                 $product->wa_link = $waLink . "?text=" . $text;
             }
 
@@ -27,13 +80,14 @@ class ProductController extends Controller
                 'status' => 'success',
                 'data' => $products
             ], 200);
-        } catch(\Exception $error) {
+        } catch (\Exception $error) {
             return response()->json([
                 'status' => 'error',
                 'message' => $error->getMessage()
             ], 500);
         }
     }
+
 
     public function show($id)
     {
@@ -125,7 +179,7 @@ class ProductController extends Controller
                 'data' => $product,
             ], 201);
         } catch(\Exception $error) {
-            return response()->json([
+            return response()->json([ 
                 'status' => 'error',
                 'message' => $error->getMessage()
             ], 500);
@@ -198,16 +252,16 @@ class ProductController extends Controller
     {
         try {
             $product = Product::find($id);
-    
+
             if (!$product) {
                 return response()->json(['message' => 'Product not found'], 404);
             }
-    
+
             // Delete product image
-            Storage::delete('product_images/' . $product->item_image);
-    
+            Storage::delete('public/images/products/' . $product->item_image);
+
             $product->delete();
-    
+
             return response()->json(['message' => 'Product deleted'], 200);
         } catch (\Exception $error) {
             return response()->json([
@@ -217,9 +271,10 @@ class ProductController extends Controller
         }
     }
 
+
     private function getImageUrl($imageName)
     {
         $baseUrl = config('app.url');
-        return "{$baseUrl}/api/images/supplier/{$imageName}";
+        return "{$baseUrl}/storage/images/products/{$imageName}";
     }
 }
